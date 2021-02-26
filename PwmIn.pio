@@ -17,7 +17,7 @@
 
 ; Notes: 
 ;   - the pulsewidth is measured in a loop with 2 instructions
-;   - the period is measured in a loop with 3 instructions
+;   - the rest of the period is measured in a loop with 3 instructions
  
 start:
     set x 0         ; start with the value 0 and subtract one
@@ -44,42 +44,3 @@ timerstop2:
 
     jmp start
 
-
-
-
-
-; 
-; 
-; start:
-;                     ; give a puls to the HCSR04 Trigger pin
-;     set pins 1      ; set the trigger to 1 and wait 10 us
-;     in NULL 32      ; clear ISR
-;     set x 19        ; set x to 10011
-;     in x 5          ; shift the x into the ISR 
-;     in NULL 6       ; shift in 6 more 0 bits
-;     mov x ISR       ; move the ISR to x (which now contains 10011000000)
-; delay1:
-;     jmp x-- delay1  ; count down to 0: a delay of (about) 10 us
-;     set pins 0      ; make the trigger 0 again, completing the trigger pulse
-;                     ; 
-;     wait 1 pin 0    ; wait for the echo pin to rise
-;                     ; start a counting loop to measure the length of the echo pulse
-;     set x 0         ; start with the value 0 and subtract one
-;     jmp x-- timer   ; timer is now FFFFFFFF (note: x-- is post-decrement)
-; timer:
-;     jmp x-- test    ; count down
-;     jmp timerstop   ; timer has reached 0, stop count down
-; test:
-;     jmp pin timer   ; test if the echo pin is still 1, if so, continue counting down
-; timerstop:          ; echo pulse is over (or timer has reached 0)
-;     mov ISR x       ; move the value in x to the ISR
-;     push noblock    ; push the ISR into the RX FIFO
-;                     ; wait 60ms (advice from datasheet to prevent triggering on echos)
-;     in NULL 32      ; clear ISR
-;     set x 28        ; set x to 10011
-;     in x 5          ; shift the x (10011) into the ISR 
-;     in NULL 18      ; shift in 18 more 0 bits
-;     mov x ISR       ; move the ISR to x 
-; delay2:
-;     jmp x-- delay2  ; delay (about) 60 ms
-;     jmp start       ; start over
