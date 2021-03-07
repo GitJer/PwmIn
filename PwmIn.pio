@@ -20,9 +20,7 @@
 ;   - the rest of the period is measured in a loop with 3 instructions
  
 start:
-                    ; note these two lines could be replaced by 'mov x ~NULL'
-    set x 0         ; start with the value 0 and subtract one
-    jmp x-- timer   ; timer is now FFFFFFFF (note: x-- is post-decrement)
+    mov x ~NULL     ; start with the value 0xFFFFFFFF 
 
 timer:
     jmp x-- test    ; count down
