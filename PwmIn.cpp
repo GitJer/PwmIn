@@ -13,7 +13,7 @@ class PwmIn
 {
 public:
     // constructor
-    // input = pin that receives the PWM pulses. 
+    // input = pin that receives the PWM pulses.
     PwmIn(uint input)
     {
         // pio 0 is used
@@ -27,8 +27,8 @@ public:
         // make a sm config
         pio_sm_config c = PwmIn_program_get_default_config(offset);
         // set the 'jmp' pin
-        sm_config_set_jmp_pin(&c, input); 
-        // set shift direction 
+        sm_config_set_jmp_pin(&c, input);
+        // set shift direction
         sm_config_set_in_shift(&c, false, false, 0);
         // init the pio sm with the config
         pio_sm_init(pio, sm, offset, &c);
@@ -37,66 +37,66 @@ public:
     }
 
     // read_period (in seconds)
-    float read_period(void){
-        if (read() == -1) {
+    float read_period(void)
+    {
+        if (read() == -1)
+        {
             return -1;
         }
         // one clock cycle is 1/125000000 seconds
-        return(period * 0.000000008);
+        return (period * 0.000000008);
     }
 
     // read_pulsewidth (in seconds)
-    float read_pulsewidth(void){
-        if (read() == -1) {
+    float read_pulsewidth(void)
+    {
+        if (read() == -1)
+        {
             return -1;
         }
         // one clock cycle is 1/125000000 seconds
-        return(pulsewidth * 0.000000008);
+        return (pulsewidth * 0.000000008);
     }
 
     // read_dutycycle (between 0 and 1)
-    float read_dutycycle(void){
-        if (read() == -1) {
+    float read_dutycycle(void)
+    {
+        if (read() == -1)
+        {
             return -1;
         }
-        return((float)pulsewidth / (float)period);
+        return ((float)pulsewidth / (float)period);
     }
 
 private:
-
     // read the period and pulsewidth
     float read(void)
-    {   
+    {
         // clear the FIFO: do a new measurement
         pio_sm_clear_fifos(pio, sm);
-        // give the sm some time to do a measurement and place it in the FIFO
-        sleep_ms(100);
-        // check that the FIFO isn't empty
-        if (pio_sm_is_rx_fifo_empty(pio, sm)) {
-            return -1;
-        } 
-        // read two data item from the FIFO 
-        uint32_t t1 = (0xFFFFFFFF-pio_sm_get(pio, sm));
-        uint32_t t2 = (0xFFFFFFFF-pio_sm_get(pio, sm));
-        // since pulse data is continuously added to the FIFO, sometimes the period/pulse data is read reversed
-        if (t1 > t2) {
+        // wait for the FIFO to contain two data items: pulsewidth and period
+        while (pio_sm_get_rx_fifo_level(pio, sm) < 2)
+            ;
+        // read pulse width from the FIFO
+        uint32_t t1 = (0xFFFFFFFF - pio_sm_get(pio, sm));
+        // read period from the FIFO
+        uint32_t t2 = (0xFFFFFFFF - pio_sm_get(pio, sm));
+        // since data is continuously added to the FIFO, sometimes the period/pulse data is read reversed
+        if (t1 > t2)
+        {
             period = t1;
             pulsewidth = t2;
-        } else {
+        }
+        else
+        {
             period = t2;
             pulsewidth = t1;
         }
-        
-        // correction because part of the period has a different timer tick, see PIO code
-        // The part of the period that has 3 clock cycles per timer tick
-        t1 = period - pulsewidth;
-        // multiply by 3 clock cycles per timer tick
-        t1 = 3 * t1; 
-        // the pulsewidth is measured with 2 clock cycles per timer tick
-        pulsewidth = 2 * pulsewidth; 
+        // the measurements are taken with 2 clock cycles per timer tick
+        pulsewidth = 2 * pulsewidth;
         // calculate the period in clock cycles:
-        period = t1 + pulsewidth;
-        // return successful
+        period = 2 * period;
+        // return as successful
         return 0;
     }
 
@@ -112,12 +112,11 @@ int main()
 {
     // needed for printf
     stdio_init_all();
-    // the instance of the PwmIn for pin 14
-    PwmIn my_PwmIn(14);
+    // the instance of the PwmIn
+    PwmIn my_PwmIn(16);
     // infinite loop to print PWM measurements
     while (true)
-    {   
-        printf("pw=%f p=%f dc=%f\n", my_PwmIn.read_pulsewidth(), my_PwmIn.read_period(), my_PwmIn.read_dutycycle());
-        sleep_ms(100);
+    {
+        printf("pw=%.8f \tp=%.8f \tdc=%.8f\n", my_PwmIn.read_pulsewidth(), my_PwmIn.read_period(), my_PwmIn.read_dutycycle());
     }
 }
