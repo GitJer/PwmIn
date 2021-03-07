@@ -112,7 +112,7 @@ int main()
 {
     // needed for printf
     stdio_init_all();
-    // the instance of the PwmIn (Echo pin = 14, Trig pin = 15)
+    // the instance of the PwmIn for pin 14
     PwmIn my_PwmIn(14);
     // infinite loop to print PWM measurements
     while (true)
