@@ -1,3 +1,9 @@
+# This repository is updated and moved to [here](https://github.com/GitJer/Some_RPI-Pico_stuff/tree/main/PwmIn)
+
+Please use the new repository!
+
+OLD TEXT:
+
 # PWM input using the Raspberry Pi Pico PIO 
 
 Most microcontrollers have hardware to produce Pulse Width Modulation (PWM) signals. But sometimes it is useful to be able to read PWM signals and determine the period, pulse width and duty cycle.
