@@ -1,4 +1,4 @@
-# This repository is updated and moved to [here](https://github.com/GitJer/Some_RPI-Pico_stuff/tree/main/PwmIn)
+# This repository has been updated and moved to [here](https://github.com/GitJer/Some_RPI-Pico_stuff/tree/main/PwmIn)
 
 Please use the new repository!
 
